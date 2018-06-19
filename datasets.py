@@ -93,7 +93,7 @@ def preprocess_avito(csv_file, n_folds=5, fold_idx=0, is_train=True):
     data = pd.read_csv(csv_file, dtype=dtypes, index_col='item_id',
                             usecols=use_cols)
 
-    data = data[0:200]
+    # data = data[0:200]
     if not is_train:
         return data.image.values
 

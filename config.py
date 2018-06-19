@@ -12,7 +12,7 @@
 #test_dir = '/home/bumsoo/Data/test/HWEJIN_INBREAST_SPLIT'
 
 # GURO_SPLIT
-name = 'GURO_TRAIN'
+name = 'avito'
 #test_dir = '/home/bumsoo/Data/test/FINAL_HWEJIN/HWEJIN_GURO_SPLIT'
 
 # GURO_ALL -> INBREAST_ALL
@@ -22,7 +22,7 @@ name = 'GURO_TRAIN'
 # MIX_TRAIN -> MIX_TEST
 #name = 'MIX_TRAIN'
 #test_dir = '/home/bumsoo/Data/test/FINAL_HWEJIN/HWEJIN_MIX_TEST'
-test_dir = '/home/bumsoo/inference_patches/guro_patches_test_8'
+test_dir = '/media/mangroup/Disk/avito_demand_prediction/data/train_jpg/'
 
 # GURO80+INBREAST_ALL
 #name = 'GURO80+INBREAST'
@@ -46,12 +46,18 @@ test_dir = '/home/bumsoo/inference_patches/guro_patches_test_8'
 #name = 'GURO_ALL'
 #test_dir = '/home/bumsoo/Data/test/PATCH_INBREAST_TEST/inbreast_patches_4'
 
-data_base = '/home/mnt/datasets/'+name
-aug_base = '/home/bumsoo/Data/split/'+name
+data_base = '/media/mangroup/Disk/avito_demand_prediction/data/train_jpg'
+aug_base = '/media/mangroup/Disk/avito_demand_prediction/data/train_jpg'
+train_csv_file = "/media/mangroup/Disk/avito_demand_prediction/data/train.csv"
+test_csv_file = ""
+n_folds=5
+fold_idx=0
+is_train=True
+aux_name="fold"+str(fold_idx)
 
 # model option
-batch_size = 16
-num_epochs = 50
+batch_size = 64
+num_epochs = 5
 lr_decay_epoch=20
 feature_size = 500
 

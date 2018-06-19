@@ -50,7 +50,8 @@ fold = preprocess_avito(cf.train_csv_file, cf.n_folds, cf.fold_idx, cf.is_train)
 images = fold['images']
 probs = fold['probs']
 print("| Data Summary")
-print("| #samples = {}".format(len(images)))
+print("| #train samples = {}".format(len(images['train'])))
+print("| #val samples = {}".format(len(images['val'])))
 # filter out items which don't have image files
 # data = data[data.image.notnull()]
 # data = shuffle(data)
