@@ -56,7 +56,7 @@ is_train=True
 aux_name="fold"+str(fold_idx)
 
 # model option
-batch_size = 64
+batch_size = 32
 num_epochs = 5
 lr_decay_epoch=20
 feature_size = 500

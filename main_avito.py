@@ -205,6 +205,7 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=cf.num_epo
             else:
                 model.train(False)
                 model.eval()
+                data_val = dict()
 
             running_loss, running_corrects, tot = 0.0, 0, 0
 
@@ -220,7 +221,11 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=cf.num_epo
 
                 # Forward Propagation
                 outputs = model(inputs)
-                _, preds = torch.max(outputs.data, 1)
+
+                if phase == 'val':
+                    data_val.update({imid : output for imid, output in
+                                     zip(batch['imid'], outputs.detach().cpu().numpy())})
+
                 loss = criterion(outputs, labels)
                 loss = torch.sqrt(loss)
 
@@ -257,6 +262,7 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=cf.num_epo
                         'model': best_model,
                         'acc':   epoch_acc,
                         'epoch':epoch,
+                        'val_results': data_val,
                     }
                     if not os.path.isdir('checkpoint'):
                         os.mkdir('checkpoint')
