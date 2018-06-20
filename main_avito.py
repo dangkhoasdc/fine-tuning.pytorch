@@ -227,7 +227,8 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=cf.num_epo
                                      zip(batch['imid'], outputs.detach().cpu().numpy())})
 
                 loss = criterion(outputs, labels)
-                loss = torch.sqrt(loss)
+                if phase == 'train':
+                    loss = torch.sqrt(loss)
 
                 # Backward Propagation
                 if phase == 'train':
@@ -236,7 +237,6 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=cf.num_epo
 
                 # Statistics
                 running_loss += loss.item()
-                tot += labels.size(0)
 
                 if (phase == 'train'):
                     sys.stdout.write('\r')
@@ -247,21 +247,25 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=cf.num_epo
                     sys.stdout.flush()
                     sys.stdout.write('\r')
 
-            epoch_loss = running_loss / dset_sizes[phase]
-            epoch_acc  = epoch_loss
+            if phase == 'train':
+                epoch_loss = running_loss / len(dset_loaders[phase])
+            else:
+                epoch_loss = np.sqrt(running_loss)
+
+            # epoch_loss = np.sqrt(epoch_loss)
 
             if (phase == 'val'):
-                print('\n| Validation Epoch #%d\t\t\tLoss %.4f\tMSE %.2f%%'
-                    %(epoch+1, loss.item(), epoch_acc))
+                print('\n| Validation Epoch #%d\t\t\tRMSE %.4f\t'
+                    %(epoch+1, epoch_loss))
 
-                if epoch_acc < best_acc :#and epoch > 80:
-                    print('| Saving Best model...\t\t\tMSE %.2f%%' %(100.*epoch_acc))
-                    best_acc = epoch_acc
+                if epoch_loss < best_acc :#and epoch > 80:
+                    print('| Saving Best model...\t\t\tMSE %.4f' %(epoch_loss))
+                    best_acc = epoch_loss
                     best_model = copy.deepcopy(model)
                     state = {
                         'model': best_model,
-                        'acc':   epoch_acc,
-                        'epoch':epoch,
+                        'acc':   epoch_loss,
+                        'epoch': epoch,
                         'val_results': data_val,
                     }
                     if not os.path.isdir('checkpoint'):
@@ -274,7 +278,7 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=cf.num_epo
 
     time_elapsed = time.time() - since
     print('\nTraining completed in\t{:.0f} min {:.0f} sec'. format(time_elapsed // 60, time_elapsed % 60))
-    print('Best validation Acc\t{:.2f}%'.format(best_acc*100))
+    print('Best validation Acc\t{:.4f}%'.format(best_acc))
 
     return best_model
 
@@ -320,6 +324,6 @@ if use_gpu:
     cudnn.benchmark = True
 
 if __name__ == "__main__":
-    criterion = nn.MSELoss()
+    criterion = nn.MSELoss(size_average=True)
     optimizer_ft = optim.SGD(model_ft.parameters(), lr=args.lr, momentum=0.9, weight_decay=args.weight_decay)
     model_ft = train_model(model_ft, criterion, optimizer_ft, exp_lr_scheduler, num_epochs=cf.num_epochs)
