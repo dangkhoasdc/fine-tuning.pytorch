@@ -210,6 +210,9 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=cf.num_epo
             running_loss, running_corrects, tot = 0.0, 0, 0
 
             for batch_idx, batch in enumerate(dset_loaders[phase]):
+
+                batch_size = len(batch['imid'])
+
                 if use_gpu:
                     inputs = Variable(batch['image'].cuda())
                     labels = Variable(batch['prob'].cuda())
@@ -228,6 +231,7 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=cf.num_epo
 
                 loss = criterion(outputs, labels)
                 if phase == 'train':
+                    loss = 1.0/len(batch['imid'])*loss
                     loss = torch.sqrt(loss)
 
                 # Backward Propagation
@@ -250,7 +254,8 @@ def train_model(model, criterion, optimizer, lr_scheduler, num_epochs=cf.num_epo
             if phase == 'train':
                 epoch_loss = running_loss / len(dset_loaders[phase])
             else:
-                epoch_loss = np.sqrt(running_loss)
+                epoch_loss = 1.0/dset_sizes['val']*running_loss
+                epoch_loss = np.sqrt(epoch_loss)
 
             # epoch_loss = np.sqrt(epoch_loss)
 
@@ -324,6 +329,6 @@ if use_gpu:
     cudnn.benchmark = True
 
 if __name__ == "__main__":
-    criterion = nn.MSELoss(size_average=True)
+    criterion = nn.MSELoss(size_average=False)
     optimizer_ft = optim.SGD(model_ft.parameters(), lr=args.lr, momentum=0.9, weight_decay=args.weight_decay)
     model_ft = train_model(model_ft, criterion, optimizer_ft, exp_lr_scheduler, num_epochs=cf.num_epochs)
